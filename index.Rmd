@@ -1,0 +1,27 @@
+---
+title: "DACSS601 Assignment 3 Steven Tang"
+output: html_document
+---
+
+Updated 20250105
+
+Installing to read Excel files:
+```{r}
+# install.packages('rio') # installs necessary package for reading Excel files
+```
+
+# reading data
+
+```{r}
+# opening a file from a url (file in Excel)
+linkGit1="https://github.com/FuntamendalsSteven/demo3/raw/refs/heads/main/Maternal%20mortality%20ratio.csv" # assigns url link to string variable named, 'linkGit1'
+
+linkGit2="https://github.com/FuntamendalsSteven/demo3/raw/refs/heads/main/Infant%20mortality%20rate.csv" # assigns url link to string variable named, 'linkGit2'
+
+linkGit3="https://github.com/FuntamendalsSteven/demo3/raw/refs/heads/main/Life%20expectancy%20at%20birth.csv" # assigns url link to string variable named, 'linkGit3'
+
+# library(rio) # package needed
+maternalmortality=rio::import(file = linkGit1) #object that will hold the result # Maternal_Mortality is an object that will hold data, most likely a data frame
+infantmortality=rio::import(file = linkGit2) #object that will hold the result # Maternal_Mortality is an object that will hold data, most likely a data frame
+lifeexpectancy=rio::import(file = linkGit3) #object that will hold the result # Maternal_Mortality is an object that will hold data, most likely a data frame
+```
