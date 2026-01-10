@@ -3,7 +3,7 @@ title: "DACSS601 Assignment 3 Steven Tang"
 output: html_document
 ---
 
-Updated 20250105
+Updated 20250110
 
 Installing to read Excel files:
 ```{r}
@@ -11,7 +11,6 @@ Installing to read Excel files:
 ```
 
 Reading data
-
 ```{r}
 # opening a file from a url (file in Excel)
 linkGit1="https://github.com/FuntamendalsSteven/demo3/raw/refs/heads/main/Maternal%20mortality%20ratio.csv" # assigns url link to string variable named, 'linkGit1'
@@ -30,12 +29,13 @@ We get two warnings here about a detection of 7 columns but the data only has 6.
 Let us check the internal structure of the data in R.
 ```{r}
 str(maternalmortality) # check the internal structure of maternalmortality data
-# str(infantmortality)
+str(infantmortality) # check the internal structure of infantmortality data
 # str(lifeexpectancy)
 ```
 Let us check the column names.
 ```{r}
 names(maternalmortality) # Check the column names of maternalmortality.
+names(infantmortality) # Check the column names of infantmortality.
 ```
 Notice that it seems the comma in 'deaths/100,000 live births' separates the column into two ('deaths/100' and '000 live births') in R. Also notice that the columns are shifted since the splitting of the erroneous column, with the region column being NA values for all rows.
 
@@ -50,16 +50,57 @@ columnnames[7] <- "NA"
 columnnames[3] <- 'deathsper100000livebirths' # specific rename for readability
 # columnnames # view new column names for verification
 
-names(maternalmortality_clean) <- columnnames # assign maternalmortality_clean with clean column names 
+names(maternalmortality_clean) <- columnnames # assign maternalmortality_clean with clean column names
+names(maternalmortality_clean) <- gsub("[^0-9a-zA-Z]",'',names(maternalmortality_clean)) # removes special characters from column names
 str(maternalmortality_clean) # view the internal structure of maternalmortality_clean
 ```
+
 Now we have the data mostly properly represented. We move on to removing the last column which is extraneous.
 ```{r}
 maternalmortality_clean <- maternalmortality_clean[, names(maternalmortality_clean)[names(maternalmortality_clean)!='NA']] # removes the last column
-maternalmortality_clean # view the data frame for verification purposes
+str(maternalmortality_clean) # view the internal structure of maternalmortality for verification purposes
 ```
+
 Now that we have the correct columns and types established, we may inspect each column.
+Columns name, slug, and region are textual columns, and are recognized correctly as character (chr) types by R.
+Lets explore the cells to verify all the characters are part of the alphabet. We begin with the name column.
+```{r}
+maternalmortality_clean$name[grep("[^a-zA-Z\\s]",maternalmortality_clean$name,perl = T)] # shows the cells in maternalmortality_clean name column that contains a character that is not a space nor alphanumeric.
+```
+The above entries contain a character that is not a space nor alphanumeric such as a ','. Let us swap the contents of the entries with commas.
+```{r}
+mm_c_name <- c(maternalmortality_clean$name[grep("[^a-zA-Z\\s]",maternalmortality_clean$name,perl = T)]) # gather the entries into a vector named 'mm_c_name'
+mm_c_name <- sapply(strsplit(mm_c_name, ", "), rev) # create a list by applying splitting each entry on ', ' and reversing the order of the result
+mm_c_name <- sapply(mm_c_name, paste, collapse = " ") # create a list by applying the paste function (concatenate with a space of the vectors create from the split function above
+#mm_c_name # view the object
+maternalmortality_clean$name[grep("[^a-zA-Z\\s]",maternalmortality_clean$name,perl = T)] <- mm_c_name # assign new changes to the data frame
+# maternalmortality_clean # view data frame for verification purposes
+```
 
+Let us check again which entries in the name column have characters that are not in the alphabet.
+```{r}
+maternalmortality_clean$name[grep("[^a-zA-Z\\s]",maternalmortality_clean$name,perl = T)] # shows the cells in maternalmortality_clean name column that contains a character that is not a space nor alphanumeric.
+```
 
+Not all cells have characters that are not in the alphabet;BUT THIS TIME, The only problem here is the parenthesis.
+```{r}
+gsub(" \\(.*\\)",'',maternalmortality_clean$name[grep("[^a-zA-Z\\s]",maternalmortality_clean$name,perl = T)],perl = T) # removes everything in parenthesis from the above
+```
 
+The above result is acceptable so we can apply the rule to the entire name column
+```{r}
+maternalmortality_clean$name <- gsub(" \\(.*\\)",'',maternalmortality_clean$name,perl = T) # establishes changes to maternalmortality_clean
+```
+
+Now let's move onto the slug textual column in maternalmortality_clean
+```{r}
+maternalmortality_clean$slug[grep("[^a-zA-Z\\s]",maternalmortality_clean$slug,perl = T)] # shows the cells in maternalmortality_clean slug column that contains a character that is not a space nor alphanumeric.
+```
+The output from the above line shows that the items that include characters that are not a space nor alphanumeric include a '-', which is acceptable.
+
+Now let's move onto the region textual column
+```{r}
+maternalmortality_clean$region[grep("[^a-zA-Z\\s]",maternalmortality_clean$region,perl = T)] # shows the cells in maternalmortality_clean region column that contains a character that is not a space nor alphanumeric.
+```
+The output is 'character(0)' so we know that all entries in the region textual column contain valid characters. We may move on.
 
