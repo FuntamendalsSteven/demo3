@@ -10,7 +10,7 @@ Installing to read Excel files:
 # install.packages('rio') # installs necessary package for reading Excel files
 ```
 
-# reading data
+Reading data
 
 ```{r}
 # opening a file from a url (file in Excel)
@@ -25,3 +25,41 @@ maternalmortality=rio::import(file = linkGit1) #object that will hold the result
 infantmortality=rio::import(file = linkGit2) #object that will hold the result # Maternal_Mortality is an object that will hold data, most likely a data frame
 lifeexpectancy=rio::import(file = linkGit3) #object that will hold the result # Maternal_Mortality is an object that will hold data, most likely a data frame
 ```
+We get two warnings here about a detection of 7 columns but the data only has 6. These warnings stem from the files for maternalmortality and infantmortality because one of the columns is named 'deaths/1,000 live births.' In particular, this naming scheme has a comma in it, which confuses R.
+
+Let us check the internal structure of the data in R.
+```{r}
+str(maternalmortality) # check the internal structure of maternalmortality data
+# str(infantmortality)
+# str(lifeexpectancy)
+```
+Let us check the column names.
+```{r}
+names(maternalmortality) # Check the column names of maternalmortality.
+```
+Notice that it seems the comma in 'deaths/100,000 live births' separates the column into two ('deaths/100' and '000 live births') in R. Also notice that the columns are shifted since the splitting of the erroneous column, with the region column being NA values for all rows.
+
+Let us rename the columns so that it is faithful to the original.
+```{r}
+maternalmortality_clean <- maternalmortality # copy the data to a new object
+columnnames <- c(gsub("\\W",'',names(maternalmortality_clean) , perl=T )) # deletes special characters (replaces with nothing)
+columnnames[3] <- paste0(columnnames[3], columnnames[4]) # combines 'deaths100' and '000livebirths'
+columnnames[4:6] <- columnnames[5:7] # shifts column names left
+columnnames[7] <- "NA"
+
+columnnames[3] <- 'deathsper100000livebirths' # specific rename for readability
+# columnnames # view new column names for verification
+
+names(maternalmortality_clean) <- columnnames # assign maternalmortality_clean with clean column names 
+str(maternalmortality_clean) # view the internal structure of maternalmortality_clean
+```
+Now we have the data mostly properly represented. We move on to removing the last column which is extraneous.
+```{r}
+maternalmortality_clean <- maternalmortality_clean[, names(maternalmortality_clean)[names(maternalmortality_clean)!='NA']] # removes the last column
+maternalmortality_clean # view the data frame for verification purposes
+```
+Now that we have the correct columns and types established, we may inspect each column.
+
+
+
+
