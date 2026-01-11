@@ -92,7 +92,7 @@ Let us check again which entries in the name column have characters that are not
 maternalmortality_clean$name[grep("[^a-zA-Z\\s]",maternalmortality_clean$name,perl = T)] # shows the cells in maternalmortality_clean name column that contains a character that is not a space nor alphanumeric.
 ```
 
-Not all cells have characters that are not in the alphabet;BUT THIS TIME, The only problem here is the parenthesis.
+Not all cells have characters that are not in the alphabet; BUT THIS TIME, The only problem here is the parenthesis.
 ```{r}
 gsub(" \\(.*\\)",'',maternalmortality_clean$name[grep("[^a-zA-Z\\s]",maternalmortality_clean$name,perl = T)],perl = T) # removes everything in parenthesis from the above
 ```
@@ -184,7 +184,7 @@ Let us check again which entries in the name column have characters that are not
 infantmortality_clean$name[grep("[^a-zA-Z\\s]",infantmortality_clean$name,perl = T)] # shows the cells in infantmortality_clean name column that contains a character that is not a space nor alphanumeric.
 ```
 
-Not all cells have characters that are not in the alphabet;BUT THIS TIME, The only problem here is the parenthesis.
+Not all cells have characters that are not in the alphabet; BUT THIS TIME, The only problem here is the parenthesis.
 ```{r}
 gsub(" \\(.*\\)",'',infantmortality_clean$name[grep("[^a-zA-Z\\s]",infantmortality_clean$name,perl = T)],perl = T) # removes everything in parenthesis from the above
 ```
@@ -208,3 +208,77 @@ infantmortality_clean$region[grep("[^a-zA-Z\\s]",infantmortality_clean$region,pe
 The output is 'character(0)' so we know that all entries in the region textual column contain valid characters. We may continue.
 
 Lastly, we move onto the data from lifeexpectancy.
+```{r}
+str(lifeexpectancy) # check the internal structure of lifeexpectancy data
+```
+Notice that the structure of this dataframe is as expected.
+
+Let us check the column names.
+```{r}
+names(lifeexpectancy) # Check the column names of lifeexpectancy.
+```
+We can remove the underscores from "date_of_information".
+
+Let's create a clean data frame and remove the special characters.
+```{r}
+lifeexpectancy_clean <- lifeexpectancy # copy the data to a new object
+
+names(lifeexpectancy_clean) <- gsub("[^0-9a-zA-Z]",'',names(lifeexpectancy_clean)) # removes special characters from column names (in this case it is the underscores)
+str(lifeexpectancy_clean) # view the internal structure of lifeexpectancy_clean
+```
+
+Now that we have the correct columns and types established, we may inspect each column.
+Notice that the numerical columns are recognized as ints, therefore we do not have to clean these columns. We can confirm with the following R code.
+```{r}
+is.numeric(lifeexpectancy_clean$years)
+is.numeric(lifeexpectancy_clean$dateofinformation)
+is.numeric(lifeexpectancy_clean$ranking)
+```
+
+Columns name, slug, and region are textual columns, and are recognized correctly as character (chr) types by R.
+For the textual columns, let's explore the cells to verify all the characters are part of the alphabet. We begin with the name column.
+```{r}
+lifeexpectancy_clean$name[grep("[^a-zA-Z\\s]",lifeexpectancy_clean$name,perl = T)] # shows the cells in lifeexpectancy_clean name column that contains a character that is not a space nor alphanumeric.
+```
+The output is similar to the situation with infantmortality. We can apply the same changes that we made to infantmortality to lifeexpectancy.
+
+Let us swap the contents of the entries with commas. The only entry that does not need to have its words reversed is 'Saint Helena, Ascension, and Tristan da Cunha'. We will save this.
+```{r}
+le_c_name <- c(lifeexpectancy_clean$name[grep("[^a-zA-Z\\s]",lifeexpectancy_clean$name,perl = T)]) # gather the entries into a vector named 'mm_c_name'
+le_c_name <- sapply(strsplit(le_c_name, ", "), rev) # create a vector by applying splitting each entry on ', ' and reversing the order of the result
+le_c_name <- sapply(le_c_name, paste, collapse = " ") # create a vector by applying the paste function (concatenate with a space of the vectors create from the split function above
+#im_c_name # view the object
+lifeexpectancy_clean$name[grep("[^a-zA-Z\\s]",lifeexpectancy_clean$name,perl = T)] <- le_c_name # assign new changes to the data frame
+
+lifeexpectancy_clean$name[lifeexpectancy_clean$name == "and Tristan da Cunha Ascension Saint Helena"] <- "Saint Helena Ascension and Tristan da Cunha" # return the unnecessary change, but remove commas manually
+
+lifeexpectancy_clean$name # view for verification purposes
+
+```
+
+Let us check again which entries in the name column have characters that are not in the alphabet.
+```{r}
+lifeexpectancy_clean$name[grep("[^a-zA-Z\\s]",lifeexpectancy_clean$name,perl = T)] # shows the cells in lifeexpectancy_clean name column that contains a character that is not a space nor alphanumeric.
+```
+
+Not all cells have characters that are not in the alphabet; BUT THIS TIME, The only problem here is the parenthesis.
+```{r}
+gsub(" \\(.*\\)",'',lifeexpectancy_clean$name[grep("[^a-zA-Z\\s]",lifeexpectancy_clean$name,perl = T)],perl = T) # removes everything in parenthesis from the above
+```
+
+The above result is acceptable so we can apply the rule to the entire name column.
+```{r}
+lifeexpectancy_clean$name <- gsub(" \\(.*\\)",'',lifeexpectancy_clean$name,perl = T) # establishes changes to lifeexpectancy_clean
+```
+
+Now let's move onto the slug textual column in lifeexpectancy_clean
+```{r}
+lifeexpectancy_clean$slug[grep("[^a-zA-Z\\s]",lifeexpectancy_clean$slug,perl = T)] # shows the cells in lifeexpectancy_clean slug column that contains a character that is not a space nor alphanumeric.
+```
+The output from the above line shows that the items that include characters that are not a space nor alphanumeric include a '-', which is acceptable.
+
+Now let's move onto the region textual column
+```{r}
+lifeexpectancy_clean$region[grep("[^a-zA-Z\\s]",lifeexpectancy_clean$region,perl = T)] # shows the cells in lifeexpectancy_clean region column that contains a character that is not a space nor alphanumeric.
+```
+The output is 'character(0)' so we know that all entries in the region textual column contain valid characters. We have completed cleaning the data.
