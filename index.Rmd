@@ -30,12 +30,13 @@ Let us check the internal structure of the data in R.
 ```{r}
 str(maternalmortality) # check the internal structure of maternalmortality data
 str(infantmortality) # check the internal structure of infantmortality data
-# str(lifeexpectancy)
+str(lifeexpectancy) # check the internal structure of lifeexpectancy data
 ```
+
+Let's begin with the data from maternalmortality.
 Let us check the column names.
 ```{r}
 names(maternalmortality) # Check the column names of maternalmortality.
-names(infantmortality) # Check the column names of infantmortality.
 ```
 Notice that it seems the comma in 'deaths/100,000 live births' separates the column into two ('deaths/100' and '000 live births') in R. Also notice that the columns are shifted since the splitting of the erroneous column, with the region column being NA values for all rows.
 
@@ -62,16 +63,23 @@ str(maternalmortality_clean) # view the internal structure of maternalmortality 
 ```
 
 Now that we have the correct columns and types established, we may inspect each column.
+Notice that the numerical columns are recognized as ints, therefore we do not have to clean these columns. We can confirm with the following R code.
+```{r}
+is.numeric(maternalmortality_clean$deathsper100000livebirths)
+is.numeric(maternalmortality_clean$dateofinformation)
+is.numeric(maternalmortality_clean$ranking)
+```
+
 Columns name, slug, and region are textual columns, and are recognized correctly as character (chr) types by R.
-Lets explore the cells to verify all the characters are part of the alphabet. We begin with the name column.
+For the textual columns, let's explore the cells to verify all the characters are part of the alphabet. We begin with the name column.
 ```{r}
 maternalmortality_clean$name[grep("[^a-zA-Z\\s]",maternalmortality_clean$name,perl = T)] # shows the cells in maternalmortality_clean name column that contains a character that is not a space nor alphanumeric.
 ```
 The above entries contain a character that is not a space nor alphanumeric such as a ','. Let us swap the contents of the entries with commas.
 ```{r}
 mm_c_name <- c(maternalmortality_clean$name[grep("[^a-zA-Z\\s]",maternalmortality_clean$name,perl = T)]) # gather the entries into a vector named 'mm_c_name'
-mm_c_name <- sapply(strsplit(mm_c_name, ", "), rev) # create a list by applying splitting each entry on ', ' and reversing the order of the result
-mm_c_name <- sapply(mm_c_name, paste, collapse = " ") # create a list by applying the paste function (concatenate with a space of the vectors create from the split function above
+mm_c_name <- sapply(strsplit(mm_c_name, ", "), rev) # create a vector by applying splitting each entry on ', ' and reversing the order of the result
+mm_c_name <- sapply(mm_c_name, paste, collapse = " ") # create a vector by applying the paste function (concatenate with a space of the vectors create from the split function above
 #mm_c_name # view the object
 maternalmortality_clean$name[grep("[^a-zA-Z\\s]",maternalmortality_clean$name,perl = T)] <- mm_c_name # assign new changes to the data frame
 # maternalmortality_clean # view data frame for verification purposes
@@ -102,5 +110,5 @@ Now let's move onto the region textual column
 ```{r}
 maternalmortality_clean$region[grep("[^a-zA-Z\\s]",maternalmortality_clean$region,perl = T)] # shows the cells in maternalmortality_clean region column that contains a character that is not a space nor alphanumeric.
 ```
-The output is 'character(0)' so we know that all entries in the region textual column contain valid characters. We may move on.
+The output is 'character(0)' so we know that all entries in the region textual column contain valid characters. We may continue.
 
