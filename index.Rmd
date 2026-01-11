@@ -5,6 +5,8 @@ output: html_document
 
 Updated 20250110
 
+# Downloading Files
+
 Installing to read Excel files:
 ```{r}
 # install.packages('rio') # installs necessary package for reading Excel files
@@ -32,6 +34,10 @@ str(maternalmortality) # check the internal structure of maternalmortality data
 str(infantmortality) # check the internal structure of infantmortality data
 str(lifeexpectancy) # check the internal structure of lifeexpectancy data
 ```
+
+# Cleaning
+
+## maternal mortality
 
 Let's begin with the data from maternalmortality.
 Let us check the column names.
@@ -64,7 +70,7 @@ str(maternalmortality_clean) # view the internal structure of maternalmortality 
 
 Furthermore, we only keep the columns for country name, variable, and region, thus:
 ```{r}
-maternalmortality_clean = subset(maternalmortality_clean, select = c(name, deathsper100000livebirths, region))
+maternalmortality_clean <- subset(maternalmortality_clean, select = c(name, deathsper100000livebirths, region))
 str(maternalmortality_clean) # view the internal structure of maternalmortality for verification purposes
 ```
 
@@ -112,6 +118,8 @@ maternalmortality_clean$region[grep("[^a-zA-Z\\s]",maternalmortality_clean$regio
 ```
 The output is 'character(0)' so we know that all entries in the region textual column contain valid characters. We may continue.
 
+## infant mortality
+
 We move onto the data from infantmortality.
 ```{r}
 str(infantmortality) # check the internal structure of infantmortality data
@@ -149,7 +157,7 @@ str(infantmortality_clean) # view the internal structure of infantmortality for 
 
 Furthermore, we only keep the columns for country name, variable, and region, thus:
 ```{r}
-infantmortality_clean = subset(infantmortality_clean, select = c(name, deathsper1000livebirths, region))
+infantmortality_clean <- subset(infantmortality_clean, select = c(name, deathsper1000livebirths, region))
 str(infantmortality_clean) # view the internal structure of infantmortality for verification purposes
 ```
 
@@ -202,6 +210,8 @@ infantmortality_clean$region[grep("[^a-zA-Z\\s]",infantmortality_clean$region,pe
 ```
 The output is 'character(0)' so we know that all entries in the region textual column contain valid characters. We may continue.
 
+## life expectancy
+
 Lastly, we move onto the data from lifeexpectancy.
 ```{r}
 str(lifeexpectancy) # check the internal structure of lifeexpectancy data
@@ -224,7 +234,7 @@ str(lifeexpectancy_clean) # view the internal structure of lifeexpectancy_clean
 
 Furthermore, we only keep the columns for country name, variable, and region, thus:
 ```{r}
-lifeexpectancy_clean = subset(lifeexpectancy_clean, select = c(name, years, region))
+lifeexpectancy_clean <- subset(lifeexpectancy_clean, select = c(name, years, region))
 str(lifeexpectancy_clean) # view the internal structure of infantmortality for verification purposes
 ```
 
@@ -275,3 +285,52 @@ Now let's move onto the region textual column
 lifeexpectancy_clean$region[grep("[^a-zA-Z\\s]",lifeexpectancy_clean$region,perl = T)] # shows the cells in lifeexpectancy_clean region column that contains a character that is not a space nor alphanumeric.
 ```
 The output is 'character(0)' so we know that all entries in the region textual column contain valid characters. We have completed cleaning and formatting the data.
+
+# Saving
+
+We may now save the data objects into RDS and CSV files.
+```{r}
+
+nowClean1=maternalmortality_clean[,]
+nowClean2=infantmortality_clean[,]
+nowClean3=lifeexpectancy_clean[,]
+
+folder <- "dataCleaned"
+
+# Check if the folder exists
+if (!dir.exists(folder)) {
+  # Create the folder
+  dir.create(folder)
+}
+
+write.csv(nowClean1,file.path(folder,"maternalmortality.csv"))
+write.csv(nowClean2,file.path(folder,"infantmortality.csv"))
+write.csv(nowClean3,file.path(folder,"lifeexpectancy.csv"))
+
+saveRDS(maternalmortality_clean, "Maternal mortality ratio.rds")
+saveRDS(infantmortality_clean, "Infant mortality rate.rds")
+saveRDS(lifeexpectancy_clean, "Life expectancy at birth.rds")
+```
+
+# Verify
+
+```{r}
+data <- read.csv("dataCleaned/maternalmortality.csv")
+str(data)
+
+data <- read.csv("dataCleaned/infantmortality.csv")
+str(data)
+
+data <- read.csv("dataCleaned/lifeexpectancy.csv")
+str(data)
+
+data <- readRDS("Maternal mortality ratio.rds")
+str(data)
+
+data <- readRDS("Infant mortality rate.rds")
+str(data)
+
+data <- readRDS("Life expectancy at birth.rds")
+str(data)
+
+```
